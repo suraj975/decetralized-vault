@@ -1,68 +1,55 @@
 import React, { useState } from "react";
-
-import CeramicClient from "@ceramicnetwork/http-client";
-import ThreeIdResolver from "@ceramicnetwork/3id-did-resolver";
-
-import { EthereumAuthProvider, ThreeIdConnect } from "@3id/connect";
-import { DID } from "dids";
+import {
+  Flex,
+  Box,
+  Text,
+  Button,
+  Image,
+  Spinner,
+  Input,
+  Divider,
+  useToast,
+} from "@chakra-ui/react";
 import { IDX } from "@ceramicstudio/idx";
-import * as IPFS from "ipfs-core";
-import NavBar from "../components/navbar";
+import { CeramicConnectionContext } from "./_app";
 const CID = require("cids");
 
-const endpoint = "https://ceramic-clay.3boxlabs.com";
-
-const useIpfs = () => {
-  const [ipfs, setIpfs] = useState();
-
-  React.useEffect(() => {
-    const getIpfsInstance = async () => {
-      const data = await IPFS.create({ repo: "ok" + Math.random() });
-      setIpfs(data);
-    };
-    getIpfsInstance();
-  }, []);
-
-  return ipfs;
+const UploadFileContent = ({ inputFileRef }) => {
+  return (
+    <Flex
+      justifyContent="center"
+      alignItems="flex-start"
+      w="100%"
+      flexDir="column"
+      cursor="pointer"
+      onClick={() => inputFileRef?.current?.click()}
+    >
+      <Button
+        color="orange.200"
+        padding="50px !important"
+        variant="outline"
+        w="100%"
+      >
+        Attach File
+      </Button>
+      <Text color="orange.200" textAlign="left" mt="sm" fontSize="12px">
+        Only JPG, PNG, XLS, CVS and PDF formats
+      </Text>
+      <Divider bg="orange" mt="10px" />
+    </Flex>
+  );
 };
 
-async function connect() {
-  if (!window) return;
-  const addresses = await window.ethereum.request({
-    method: "eth_requestAccounts",
-  });
-  return addresses;
-}
-
-const useAccountCeramicConnection = async (setConfig) => {
-  const [address] = await connect();
-  const ceramic = new CeramicClient(endpoint);
-  const threeIdConnect = new ThreeIdConnect();
-  const getData = async () => {
-    const provider = new EthereumAuthProvider(window.ethereum, address);
-    await threeIdConnect.connect(provider);
-    const did = new DID({
-      provider: threeIdConnect.getDidProvider(),
-      resolver: {
-        ...ThreeIdResolver.getResolver(ceramic),
-      },
-    });
-
-    ceramic.setDID(did);
-    await ceramic.did.authenticate();
-    setConfig({ ceramic, did, address });
-  };
-  await getData();
-};
-
-function App() {
+function Upload() {
   const [name, setName] = useState("");
   const [image, setImage] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [state, setState] = useState([]);
-  const [config, setConfig] = useState();
-  const ipfs = useIpfs();
-  useAccountCeramicConnection(setConfig);
+  const inputFileRef = React.useRef(null);
+  const toast = useToast();
+  const [config, ipfs] = React.useContext(CeramicConnectionContext);
+
+  console.log("currency---->", config);
 
   React.useEffect(() => {
     fetch("https://ipfs.io/ipfs/QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n")
@@ -73,11 +60,8 @@ function App() {
   }, []);
 
   async function readProfile() {
-    const { did } = config;
-    const [address] = await connect();
-    const ceramic = new CeramicClient(endpoint);
+    const { did, ceramic, address } = config;
     const idx = new IDX({ ceramic });
-    console.log("idx daat----", ipfs, await idx.get("basicProfile", did.id));
 
     try {
       const data = await idx.get("basicProfile", `${address}@eip155:1`);
@@ -128,6 +112,7 @@ function App() {
     const { ceramic, did } = config;
     const idx = new IDX({ ceramic });
     const allpromises = [];
+    setLoaded(true);
 
     for (let i = 0; i < state.length; i++) {
       const cid3 = await addEncryptedObject(state[i], [did.id]);
@@ -137,7 +122,12 @@ function App() {
       name,
       avatar: allpromises,
     });
-    console.log("allpromises-----", allpromises);
+    setLoaded(false);
+    toast({
+      description: "successfully uploaded",
+      status: "success",
+      position: "bottom-right",
+    });
   }
 
   function getBase64(file) {
@@ -155,49 +145,113 @@ function App() {
       let data = getBase64(e.target.files[i]);
       allFiles.push(data);
     }
+    console.log("allFiles------>", allFiles);
     try {
       const finalOutput = await Promise.all(allFiles);
       setState(finalOutput);
       console.log("Here, we know that all promises resolved", finalOutput);
     } catch (e) {
       console.log("If any of the promises rejected, so will Promise.all");
+      toast({
+        description: "upload error",
+        status: "error",
+        position: "bottom-right",
+      });
     }
   };
-
   return (
-    <>
-      <NavBar />
-      <div className="App">
-        <input placeholder="Name" onChange={(e) => setName(e.target.value)} />
-        <input
-          placeholder="Profile Image"
-          onChange={(e) => setImage(e.target.value)}
-        />
-        <button onClick={updateProfile}>Set Profile</button>
-        <button onClick={readProfile}>Read Profile</button>
-        <input
-          type="file"
-          name="Asset"
-          className="my-4"
-          multiple
-          onChange={onChange}
-          paddingStart={0}
-          mb="10px"
-          border={0}
-          id="uploadSheetInput"
-          display="none"
-          _focus={{ outline: 0 }}
-        />
-        {name && <h3>{name}</h3>}
-        {image &&
-          image?.length > 0 &&
-          image.map((data, index) => (
-            <img key={index} width="200px" height="200px" src={data} />
-          ))}
-        {!image && !name && loaded && <h4>No profile, please create one...</h4>}
-      </div>
-    </>
+    <React.Fragment>
+      <Flex
+        minHeight="80vh"
+        width="100%"
+        className="App"
+        alignItems="center"
+        justifyContent="Center"
+        flexDirection={["column", "row"]}
+      >
+        <Flex
+          height="auto"
+          maxW="800px"
+          marginX={["5px", "20px"]}
+          flex="1"
+          flexDirection="column"
+          className="App"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <UploadFileContent inputFileRef={inputFileRef} />
+          <Button
+            colorScheme="orange"
+            mt="20px"
+            w="100%"
+            isDisabled={!ipfs}
+            onClick={updateProfile}
+          >
+            Set Profile
+          </Button>
+          <Input
+            type="file"
+            name="Asset"
+            className="my-4"
+            multiple
+            onChange={onChange}
+            paddingStart={0}
+            mb="10px"
+            border={0}
+            ref={inputFileRef}
+            id="uploadSheetInput"
+            display="none"
+            _focus={{ outline: 0 }}
+          />
+        </Flex>
+        {state?.length > 0 && (
+          <Flex flex="1" overflowY="scroll" height="90vh">
+            <Flex flexWrap="wrap">
+              {state.map((data, index) => {
+                const fileType = data.split(";")[0].split(":")[1].split("/")[0];
+                return (
+                  <Box
+                    position="relative"
+                    m="10px"
+                    width={["100%", "250px"]}
+                    height="250px"
+                  >
+                    {fileType === "video" && (
+                      <video controls="controls">
+                        <source src={data} type="video/mp4" />
+                      </video>
+                    )}
+                    {fileType === "image" && (
+                      <Image
+                        objectFit="cover"
+                        key={index}
+                        height="100%"
+                        src={data}
+                      />
+                    )}
+                    {loaded && (
+                      <Flex
+                        position="absolute"
+                        top="0px"
+                        width="100%"
+                        height="100%"
+                        bg="gray.100"
+                        opacity="0.5"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <Spinner color="orange.800" />
+                      </Flex>
+                    )}
+                  </Box>
+                );
+              })}
+            </Flex>
+          </Flex>
+        )}
+      </Flex>
+    </React.Fragment>
   );
 }
 
-export default App;
+export default Upload;
