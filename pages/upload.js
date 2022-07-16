@@ -161,12 +161,13 @@ function Upload() {
             state.map((data, index) => {
               const fileType = data.split(";")[0].split(":")[1].split("/")[0];
               return (
-                <Box>
+                <Box key={index}>
                   <Box
                     position="relative"
                     m="10px"
                     mb="0px"
                     width="300px"
+                    key={data?.createdAt}
                     height="250px"
                   >
                     {fileType === "video" && (
@@ -175,12 +176,7 @@ function Upload() {
                       </video>
                     )}
                     {fileType === "image" && (
-                      <Image
-                        objectFit="cover"
-                        key={index}
-                        height="100%"
-                        src={data}
-                      />
+                      <Image objectFit="cover" height="100%" src={data} />
                     )}
                     {loaded && (
                       <Flex
