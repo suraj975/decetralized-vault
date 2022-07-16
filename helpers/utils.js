@@ -1,3 +1,5 @@
+import { auth } from "../hooks/connections";
+
 export async function addEncryptedObject(cleartext, dids, config, ipfs) {
   const { did } = config;
   const jwe = await did.createDagJWE(cleartext, dids);
@@ -29,4 +31,17 @@ export const segregateFileInformation = (fileData, fileNames) => {
 
 export const getFileType = (file) => {
   return file.split(";")[0].split(":")[1].split("/")[0];
+};
+
+export const unpinCids = async (cid) => {
+  const res = await fetch(
+    `https://ipfs.infura.io:5001/api/v0/pin/rm?arg=${cid}`,
+    {
+      headers: {
+        Authorization: auth,
+      },
+      method: "POST",
+    }
+  );
+  console.log(res.json());
 };

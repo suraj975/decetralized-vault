@@ -27,6 +27,7 @@ function Upload() {
 
     for (let i = 0; i < state.length; i++) {
       const cid3 = await addEncryptedObject(state[i], [did.id], config, ipfs);
+      console.log("cid3------", cid3);
       allpromises.push(cid3.toString());
     }
     const previousData = await idx.get("basicProfile", `${address}@eip155:1`);
@@ -72,7 +73,7 @@ function Upload() {
       console.log("Here, we know that all promises resolved", finalOutput);
     } catch (e) {
       toast({
-        description: "upload error",
+        description: e,
         status: "error",
         position: "bottom-right",
       });
