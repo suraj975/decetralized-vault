@@ -38,7 +38,7 @@ export const useIpfs = () => {
 };
 
 export async function connect() {
-  if (!window) return;
+  if (typeof window !== "undefined") return;
   const addresses = await window.ethereum.request({
     method: "eth_requestAccounts",
   });
