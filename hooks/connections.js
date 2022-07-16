@@ -38,17 +38,19 @@ export const useIpfs = () => {
 };
 
 export async function connect() {
-  if (typeof window !== "undefined") return;
-  const addresses = await window.ethereum.request({
-    method: "eth_requestAccounts",
-  });
+  if (typeof window !== "undefined") {
+    const addresses = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
 
-  console.log("addressss", addresses);
-  return addresses;
+    console.log("addressss", addresses);
+    return addresses;
+  }
 }
 
 export const useAccountCeramicConnection = async (config, setConfig) => {
   if (config) return;
+  if (typeof window == "undefined") return;
   const [address] = await connect();
   const ceramic = new CeramicClient(endpoint);
   const threeIdConnect = new ThreeIdConnect();
