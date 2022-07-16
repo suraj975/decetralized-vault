@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { IDX } from "@ceramicstudio/idx";
 import { CeramicConnectionContext } from "./_app";
-const CID = require("cids");
 
 const UploadFileContent = ({ inputFileRef }) => {
   return (
@@ -21,6 +20,7 @@ const UploadFileContent = ({ inputFileRef }) => {
       alignItems="flex-start"
       w="100%"
       flexDir="column"
+      paddingX={[3, 0]}
       cursor="pointer"
       onClick={() => inputFileRef?.current?.click()}
     >
@@ -29,10 +29,17 @@ const UploadFileContent = ({ inputFileRef }) => {
         padding="50px !important"
         variant="outline"
         w="100%"
+        paddingX={[3, 0]}
       >
         Attach File
       </Button>
-      <Text color="orange.200" textAlign="left" mt="sm" fontSize="12px">
+      <Text
+        paddingX={[3, 0]}
+        color="orange.200"
+        textAlign="left"
+        mt="sm"
+        fontSize="12px"
+      >
         Only JPG, PNG, XLS, CVS and PDF formats
       </Text>
       <Divider bg="orange" mt="10px" />
@@ -41,75 +48,26 @@ const UploadFileContent = ({ inputFileRef }) => {
 };
 
 function Upload() {
-  const [name, setName] = useState("");
-  const [image, setImage] = useState([]);
+  const [fileNames, setFileNames] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [state, setState] = useState([]);
   const inputFileRef = React.useRef(null);
   const toast = useToast();
   const [config, ipfs] = React.useContext(CeramicConnectionContext);
 
-  console.log("currency---->", config);
-
-  React.useEffect(() => {
-    fetch("https://ipfs.io/ipfs/QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n")
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => console.log(data));
-  }, []);
-
-  async function readProfile() {
-    const { did, ceramic, address } = config;
-    const idx = new IDX({ ceramic });
-
-    try {
-      const data = await idx.get("basicProfile", `${address}@eip155:1`);
-      console.log("data----", data);
-      console.log(
-        "ipfs.dht.findProvs(cid)----",
-        ipfs.dht.findProvs(data.avatar[0])
-      );
-      let allPromises = [];
-      for (let i = 0; i < data.avatar.length; i++) {
-        console.log("data----", data);
-        const link = data.avatar[i];
-        const cid = new CID(link);
-
-        const cidToV1 = cid.toV1();
-        const newData = await followSecretPath(cidToV1, did);
-
-        allPromises.push(newData);
-      }
-
-      try {
-        const finalOutput = await Promise.all(allPromises);
-        setImage(finalOutput);
-        console.log("Here, we know that all promises resolved", finalOutput);
-      } catch (e) {
-        console.log("If any of the promises rejected, so will Promise.all");
-      }
-    } catch (error) {
-      console.log("error: ", error);
-      setLoaded(true);
-    }
-  }
-
-  async function followSecretPath(cid, did) {
-    const jwe = (await ipfs.dag.get(cid)).value;
-    const cleartext = await did.decryptDagJWE(jwe);
-    return cleartext;
-  }
-
   async function addEncryptedObject(cleartext, dids) {
-    console.log("ipfs-----", ipfs);
     const { did } = config;
     const jwe = await did.createDagJWE(cleartext, dids);
-    return ipfs.dag.put(jwe, { storeCodec: "dag-jose", hashAlg: "sha2-256" });
+    console.log("jwe-----", jwe);
+    return ipfs.dag.put(jwe, {
+      storeCodec: "dag-jose",
+      hashAlg: "sha2-256",
+      pin: true,
+    });
   }
 
   async function updateProfile() {
-    const { ceramic, did } = config;
+    const { ceramic, did, address } = config;
     const idx = new IDX({ ceramic });
     const allpromises = [];
     setLoaded(true);
@@ -118,10 +76,32 @@ function Upload() {
       const cid3 = await addEncryptedObject(state[i], [did.id]);
       allpromises.push(cid3.toString());
     }
-    await idx.set("basicProfile", {
-      name,
-      avatar: allpromises,
-    });
+    console.log("loadede----", cid3);
+    const previousData = await idx.get("basicProfile", `${address}@eip155:1`);
+    console.log("basicProfile", previousData);
+
+    const segregateFileInformation = (fileData) => {
+      return fileData?.reduce((acc, curr, index) => {
+        acc[curr] = {
+          ...fileNames[index],
+          cid: curr,
+        };
+        return acc;
+      }, {});
+    };
+
+    if (previousData?.files) {
+      const files = segregateFileInformation(allpromises);
+      await idx.set("basicProfile", {
+        files: { ...previousData?.files, ...files },
+      });
+    } else {
+      const files = segregateFileInformation(allpromises);
+      await idx.set("basicProfile", {
+        files,
+      });
+    }
+
     setLoaded(false);
     toast({
       description: "successfully uploaded",
@@ -140,14 +120,21 @@ function Upload() {
   }
 
   const onChange = async (e) => {
-    let allFiles = [];
+    let filesCidsPromises = [];
+    let fileName = [];
     for (let i = 0; i < e.target.files.length; i++) {
       let data = getBase64(e.target.files[i]);
-      allFiles.push(data);
+      fileName.push({
+        name: e.target.files[i]?.name,
+        type: e.target.files[i]?.type,
+        size: e.target.files[i]?.size,
+        createdAt: e.target.files[i]?.lastModified,
+      });
+      filesCidsPromises.push(data);
     }
-    console.log("allFiles------>", allFiles);
     try {
-      const finalOutput = await Promise.all(allFiles);
+      const finalOutput = await Promise.all(filesCidsPromises);
+      setFileNames(fileName);
       setState(finalOutput);
       console.log("Here, we know that all promises resolved", finalOutput);
     } catch (e) {
@@ -166,59 +153,25 @@ function Upload() {
         width="100%"
         className="App"
         alignItems="center"
-        justifyContent="Center"
-        flexDirection={["column", "row"]}
+        justifyContent="center"
+        flexDirection="column"
       >
-        <Flex
-          height="auto"
-          maxW="800px"
-          marginX={["5px", "20px"]}
-          flex="1"
-          flexDirection="column"
-          className="App"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <UploadFileContent inputFileRef={inputFileRef} />
-          <Button
-            colorScheme="orange"
-            mt="20px"
-            w="100%"
-            isDisabled={!ipfs}
-            onClick={updateProfile}
-          >
-            Set Profile
-          </Button>
-          <Input
-            type="file"
-            name="Asset"
-            className="my-4"
-            multiple
-            onChange={onChange}
-            paddingStart={0}
-            mb="10px"
-            border={0}
-            ref={inputFileRef}
-            id="uploadSheetInput"
-            display="none"
-            _focus={{ outline: 0 }}
-          />
-        </Flex>
-        {state?.length > 0 && (
-          <Flex flex="1" overflowY="scroll" height="90vh">
-            <Flex flexWrap="wrap">
-              {state.map((data, index) => {
-                const fileType = data.split(";")[0].split(":")[1].split("/")[0];
-                return (
+        <Flex maxW={["100%", "1000px"]} overflow="scroll">
+          {state?.length > 0 &&
+            state.map((data, index) => {
+              const fileType = data.split(";")[0].split(":")[1].split("/")[0];
+              return (
+                <Box>
                   <Box
                     position="relative"
                     m="10px"
-                    width={["100%", "250px"]}
+                    mb="0px"
+                    width="300px"
                     height="250px"
                   >
                     {fileType === "video" && (
                       <video controls="controls">
-                        <source src={data} type="video/mp4" />
+                        <source src={data} type="video/mp4" height="250px" />
                       </video>
                     )}
                     {fileType === "image" && (
@@ -244,11 +197,46 @@ function Upload() {
                       </Flex>
                     )}
                   </Box>
-                );
-              })}
-            </Flex>
-          </Flex>
-        )}
+                </Box>
+              );
+            })}
+        </Flex>
+        <Flex
+          width="100%"
+          height="auto"
+          marginX={["1px", "20px"]}
+          mt="10"
+          flexDirection="column"
+          className="App"
+          justifyContent="center"
+          alignItems="center"
+          maxW="1000px"
+        >
+          <UploadFileContent inputFileRef={inputFileRef} />
+          <Button
+            colorScheme="orange"
+            mt="20px"
+            w={["95%", "100%"]}
+            isDisabled={!ipfs}
+            onClick={updateProfile}
+          >
+            Set Profile
+          </Button>
+          <Input
+            type="file"
+            name="Asset"
+            className="my-4"
+            multiple
+            onChange={onChange}
+            paddingStart={0}
+            mb="10px"
+            border={0}
+            ref={inputFileRef}
+            id="uploadSheetInput"
+            display="none"
+            _focus={{ outline: 0 }}
+          />
+        </Flex>
       </Flex>
     </React.Fragment>
   );

@@ -7,11 +7,14 @@ import {
   useDisclosure,
   useColorModeValue,
   Stack,
+  Text,
+  Avatar,
 } from "@chakra-ui/react";
 import Link from "next/link";
-
+import React from "react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { NameLogoIcon } from "./icons/name-logo";
+import { CeramicConnectionContext } from "../pages/_app";
 
 const Links = [
   { name: "Home", route: "/" },
@@ -34,7 +37,7 @@ const NavLink = ({ children, link }) => (
 
 export default function NavBar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const [config] = React.useContext(CeramicConnectionContext);
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -55,6 +58,7 @@ export default function NavBar() {
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
+              x
               {Links.map((link) => (
                 <NavLink key={link} link={link.route}>
                   {link.name}
@@ -62,11 +66,31 @@ export default function NavBar() {
               ))}
             </HStack>
           </HStack>
-          <Flex alignItems={"center"}>
-            <Button variant={"solid"} colorScheme={"teal"} size={"sm"} mr={4}>
-              Connect
-            </Button>
-          </Flex>
+          {!config && (
+            <Flex alignItems={"center"}>
+              <Button variant={"solid"} colorScheme={"teal"} size={"sm"} mr={4}>
+                Connect
+              </Button>
+            </Flex>
+          )}
+          {config && (
+            <Flex>
+              <Text
+                overflow="hidden"
+                whiteSpace="nowrap"
+                textOverflow="ellipsis"
+                w="100px"
+                mr="2"
+                borderRadius="10px"
+                p="1"
+                px="2"
+                bg="gray.800"
+              >
+                {config?.address}
+              </Text>
+              <Avatar size="sm" name="" src="" />
+            </Flex>
+          )}
         </Flex>
 
         {isOpen ? (

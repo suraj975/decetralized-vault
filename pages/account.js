@@ -2,7 +2,8 @@ import React from "react";
 import { CeramicConnectionContext } from "./_app";
 import { Flex, Box, Image } from "@chakra-ui/react";
 import { IDX } from "@ceramicstudio/idx";
-const CID = require("cids");
+import CID from "cids";
+
 function Account() {
   const [config, ipfs] = React.useContext(CeramicConnectionContext);
   const [loaded, setLoaded] = React.useState();
@@ -17,64 +18,69 @@ function Account() {
   async function readProfile() {
     const { did, ceramic, address } = config;
     const idx = new IDX({ ceramic });
-
     try {
       const data = await idx.get("basicProfile", `${address}@eip155:1`);
-      console.log("data----", data);
-      console.log(
-        "ipfs.dht.findProvs(cid)----",
-        ipfs.dht.findProvs(data.avatar[0])
-      );
+      console.log("Data----->", data);
+      // if (!data?.files) return;
+      setLoaded(true);
       let allPromises = [];
-      for (let i = 0; i < data.avatar.length; i++) {
-        console.log("data----", data);
-        const link = data.avatar[i];
+      const uploadedCidsList = Object.keys(data?.files);
+      const uploadedCidsData = Object.values(data?.files);
+      for (let i = 0; i < uploadedCidsList.length; i++) {
+        const link = uploadedCidsData[i].cid;
         const cid = new CID(link);
-
         const cidToV1 = cid.toV1();
+        console.log("link----->", link, cid, cidToV1);
         const newData = await followSecretPath(cidToV1, did);
-
-        allPromises.push(newData);
+        console.log("newData----->", newData);
+        allPromises.push({ imageBytes: newData, ...uploadedCidsData[i] });
       }
-
-      try {
-        const finalOutput = await Promise.all(allPromises);
-        setImage(finalOutput);
-        console.log("Here, we know that all promises resolved", finalOutput);
-      } catch (e) {
-        console.log("If any of the promises rejected, so will Promise.all");
-      }
+      console.log("allPromises----->", allPromises);
+      setImage(allPromises);
+      setLoaded(false);
     } catch (error) {
       console.log("error: ", error);
-      setLoaded(true);
     }
   }
 
   React.useEffect(() => {
     if (!ipfs || !config) return;
+    console.log("renderr----", ipfs, config);
     readProfile();
-  }, [ipfs, config]);
+  }, [config?.address]);
   return (
     <Flex>
       {image?.length > 0 && (
         <Flex flex="1" overflowY="scroll" height="90vh">
           <Flex flexWrap="wrap">
-            {image.map((data, index) => {
-              const fileType = data.split(";")[0].split(":")[1].split("/")[0];
+            {image.map((data) => {
+              const fileType = data?.type?.split("/")[0];
               return (
-                <Box marginX="10px" maxW="200px" height="200px">
-                  <a download href={data}>
+                <Box
+                  key={data?.createdAt}
+                  marginX="10px"
+                  maxW="200px"
+                  height="200px"
+                >
+                  <a download href={data?.imageBytes}>
                     {fileType === "video" && (
                       <video height="100%" controls="controls">
-                        <source src={data} type="video/mp4" />
+                        <source src={data?.imageBytes} type="video/mp4" />
                       </video>
                     )}
                     {fileType === "image" && (
                       <Image
                         objectFit="cover"
-                        key={index}
                         height="100%"
-                        src={data}
+                        src={data?.imageBytes}
+                        download="myimage"
+                      />
+                    )}
+                    {fileType === "application" && (
+                      <Image
+                        objectFit="cover"
+                        height="100%"
+                        src={data?.imageBytes}
                         download="myimage"
                       />
                     )}

@@ -5,7 +5,12 @@ import ThreeIdResolver from "@ceramicnetwork/3id-did-resolver";
 
 import { EthereumAuthProvider, ThreeIdConnect } from "@3id/connect";
 import { DID } from "dids";
-import * as IPFS from "ipfs-core";
+import { create } from "ipfs-http-client";
+
+const projectId = "2BvwtoUR8LWpRdYYkz9XSPKYjgq";
+const projectSecret = "42ae77147e0268a7f6cd2736bb932e72";
+const auth =
+  "Basic " + Buffer.from(projectId + ":" + projectSecret).toString("base64");
 
 export const endpoint = "https://ceramic-clay.3boxlabs.com";
 
@@ -14,8 +19,15 @@ export const useIpfs = () => {
 
   React.useEffect(() => {
     const getIpfsInstance = async () => {
-      const data = await IPFS.create({ repo: "ok" + Math.random() });
-      setIpfs(data);
+      const client = create({
+        host: "ipfs.infura.io",
+        port: 5001,
+        protocol: "https",
+        headers: {
+          authorization: auth,
+        },
+      });
+      setIpfs(client);
     };
     if (!ipfs) {
       getIpfsInstance();
@@ -30,6 +42,8 @@ export async function connect() {
   const addresses = await window.ethereum.request({
     method: "eth_requestAccounts",
   });
+
+  console.log("addressss", addresses);
   return addresses;
 }
 
