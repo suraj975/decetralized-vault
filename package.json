@@ -26,6 +26,7 @@
     "ethers": "^5.4.4",
     "framer-motion": "^6.4.3",
     "ipfs-core": "^0.15.4",
+    "ipfs-http-client": "^57.0.3",
     "key-did-provider-ed25519": "^2.0.0",
     "key-did-resolver": "^2.0.5",
     "next": "12.2.1",

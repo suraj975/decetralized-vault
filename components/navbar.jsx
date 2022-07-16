@@ -1,35 +1,35 @@
-import { ReactNode } from "react";
 import {
   Box,
   Flex,
-  Avatar,
   HStack,
-  Link,
   IconButton,
   Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuDivider,
   useDisclosure,
   useColorModeValue,
   Stack,
+  Text,
+  Avatar,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon, AddIcon } from "@chakra-ui/icons";
+import Link from "next/link";
+import React from "react";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { NameLogoIcon } from "./icons/name-logo";
+import { CeramicConnectionContext } from "../pages/_app";
 
-const Links = ["Home", "Upload", "Account"];
+const Links = [
+  { name: "Home", route: "/" },
+  { name: "Upload", route: "/upload" },
+  { name: "Account", route: "/account" },
+];
 
-const NavLink = ({ children }) => (
+const NavLink = ({ children, link }) => (
   <Link
-    px={2}
-    py={1}
-    rounded={"md"}
+    style={{ padding: "10px" }}
     _hover={{
       textDecoration: "none",
       bg: useColorModeValue("gray.200", "gray.700"),
     }}
-    href={"#"}
+    href={link}
   >
     {children}
   </Link>
@@ -37,7 +37,7 @@ const NavLink = ({ children }) => (
 
 export default function NavBar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const [config] = React.useContext(CeramicConnectionContext);
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -50,36 +50,59 @@ export default function NavBar() {
             onClick={isOpen ? onClose : onOpen}
           />
           <HStack spacing={8} alignItems={"center"}>
-            <Box>Logo</Box>
+            <Box>
+              <NameLogoIcon />
+            </Box>
             <HStack
               as={"nav"}
               spacing={4}
               display={{ base: "none", md: "flex" }}
             >
+              x
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink key={link} link={link.route}>
+                  {link.name}
+                </NavLink>
               ))}
             </HStack>
           </HStack>
-          <Flex alignItems={"center"}>
-            <Button variant={"solid"} colorScheme={"teal"} size={"sm"} mr={4}>
-              Connect
-            </Button>
-          </Flex>
+          {!config && (
+            <Flex alignItems={"center"}>
+              <Button variant={"solid"} colorScheme={"teal"} size={"sm"} mr={4}>
+                Connect
+              </Button>
+            </Flex>
+          )}
+          {config && (
+            <Flex>
+              <Text
+                overflow="hidden"
+                whiteSpace="nowrap"
+                textOverflow="ellipsis"
+                w="100px"
+                mr="2"
+                borderRadius="10px"
+                p="1"
+                px="2"
+                bg="gray.800"
+              >
+                {config?.address}
+              </Text>
+              <Avatar size="sm" name="" src="" />
+            </Flex>
+          )}
         </Flex>
 
         {isOpen ? (
           <Box pb={4} display={{ md: "none" }}>
             <Stack as={"nav"} spacing={4}>
               {Links.map((link) => (
-                <NavLink key={link}>{link}</NavLink>
+                <NavLink key={link}>{link.name}</NavLink>
               ))}
             </Stack>
           </Box>
         ) : null}
       </Box>
-
-      <Box p={4}>Main Content Here</Box>
     </>
   );
 }
