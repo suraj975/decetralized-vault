@@ -12,6 +12,7 @@ export const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_KEY;
 
 export const auth =
   "Basic " + Buffer.from(projectId + ":" + projectSecret).toString("base64");
+console.log("auth---", auth);
 export const endpoint = "https://ceramic-clay.3boxlabs.com";
 
 export const useIpfs = () => {
@@ -43,7 +44,6 @@ export async function connect() {
       method: "eth_requestAccounts",
     });
 
-    console.log("addressss", addresses);
     return addresses;
   }
 }
@@ -67,6 +67,7 @@ export const useAccountCeramicConnection = async (config, setConfig) => {
     ceramic.setDID(did);
     await ceramic.did.authenticate();
     setConfig({ ceramic, did, address });
+    console.log("{ ceramic, did, address }", { ceramic, did, address });
   };
   await getData();
 };

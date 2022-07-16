@@ -27,7 +27,7 @@ function Account() {
     const idx = new IDX({ ceramic });
     try {
       const data = await idx.get("basicProfile", `${address}@eip155:1`);
-
+      console.log("data----", data);
       if (!data?.files) return;
       setLoaded(true);
       let allPromises = [];
