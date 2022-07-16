@@ -79,7 +79,7 @@ function Account() {
               );
               console.log("data----", data?.createdAt);
               return (
-                <Box mb="10" marginStart="2" color="white">
+                <Box key={data?.cid} mb="10" marginStart="2" color="white">
                   <Flex
                     bg="#202023"
                     key={data?.createdAt}
