@@ -6,7 +6,7 @@ export const LogoIcon = () => {
       width="350.72867046760086"
       height="375.59374999999994"
       viewBox="0 0 349.34533866947055 348.4375"
-      class="css-1j8o68f"
+      className="css-1j8o68f"
     >
       <defs id="SvgjsDefs1001">
         <linearGradient id="SvgjsLinearGradient1015">
