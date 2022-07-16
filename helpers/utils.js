@@ -2,12 +2,15 @@ import { auth } from "../hooks/connections";
 
 export async function addEncryptedObject(cleartext, dids, config, ipfs) {
   const { did } = config;
+  console.log("did--upload-----", did);
   const jwe = await did.createDagJWE(cleartext, dids);
-  return ipfs.dag.put(jwe, {
+  const data = ipfs.dag.put(jwe, {
     storeCodec: "dag-jose",
     hashAlg: "sha2-256",
     pin: true,
   });
+  console.log("did--acciount data data-----", jwe);
+  return data;
 }
 
 export function getBase64(file) {

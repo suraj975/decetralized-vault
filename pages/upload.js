@@ -22,6 +22,7 @@ function Upload() {
   async function updateProfile() {
     const { ceramic, did, address } = config;
     const idx = new IDX({ ceramic });
+    console.log("idx------", idx);
     const allpromises = [];
     setLoaded(true);
 
@@ -54,8 +55,12 @@ function Upload() {
   }
 
   const onChange = async (e) => {
+    const { ceramic, did, address } = config;
+    const idx = new IDX({ ceramic });
     let filesCidsPromises = [];
     let fileName = [];
+    const previousData = await idx.get("basicProfile", `${address}@eip155:1`);
+    console.log("basicProfile", previousData);
     for (let i = 0; i < e.target.files.length; i++) {
       let data = getBase64(e.target.files[i]);
       fileName.push({
@@ -70,6 +75,7 @@ function Upload() {
       const finalOutput = await Promise.all(filesCidsPromises);
       setFileNames(fileName);
       setState(finalOutput);
+
       console.log("Here, we know that all promises resolved", finalOutput);
     } catch (e) {
       toast({

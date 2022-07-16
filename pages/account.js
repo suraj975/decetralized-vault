@@ -18,6 +18,7 @@ function Account() {
 
   async function followSecretPath(cid, did) {
     const jwe = (await ipfs.dag.get(cid)).value;
+    console.log("did--acciount-----", did);
     const cleartext = await did.decryptDagJWE(jwe);
     return cleartext;
   }
