@@ -2,17 +2,17 @@ import React from "react";
 
 export const NameLogoIcon = () => {
   return (
-    <svg width="50" height="50" viewBox="0 0 270 237" class="css-1j8o68f">
+    <svg width="50" height="50" viewBox="0 0 270 237" className="css-1j8o68f">
       <defs id="SvgjsDefs4564">
         <linearGradient id="SvgjsLinearGradient4571">
-          <stop id="SvgjsStop4572" stop-color="#8f5e25" offset="0"></stop>
-          <stop id="SvgjsStop4573" stop-color="#fbf4a1" offset="0.5"></stop>
-          <stop id="SvgjsStop4574" stop-color="#8f5e25" offset="1"></stop>
+          <stop id="SvgjsStop4572" stopColor="#8f5e25" offset="0"></stop>
+          <stop id="SvgjsStop4573" stopColor="#fbf4a1" offset="0.5"></stop>
+          <stop id="SvgjsStop4574" stopColor="#8f5e25" offset="1"></stop>
         </linearGradient>
         <linearGradient id="SvgjsLinearGradient4575">
-          <stop id="SvgjsStop4576" stop-color="#8f5e25" offset="0"></stop>
-          <stop id="SvgjsStop4577" stop-color="#fbf4a1" offset="0.5"></stop>
-          <stop id="SvgjsStop4578" stop-color="#8f5e25" offset="1"></stop>
+          <stop id="SvgjsStop4576" stopColor="#8f5e25" offset="0"></stop>
+          <stop id="SvgjsStop4577" stopColor="#fbf4a1" offset="0.5"></stop>
+          <stop id="SvgjsStop4578" stopColor="#8f5e25" offset="1"></stop>
         </linearGradient>
       </defs>
       <g
