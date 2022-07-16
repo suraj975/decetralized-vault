@@ -1,51 +1,15 @@
 import React, { useState } from "react";
-import {
-  Flex,
-  Box,
-  Text,
-  Button,
-  Image,
-  Spinner,
-  Input,
-  Divider,
-  useToast,
-} from "@chakra-ui/react";
+import { Flex, Button, useToast } from "@chakra-ui/react";
 import { IDX } from "@ceramicstudio/idx";
 import { CeramicConnectionContext } from "./_app";
-
-const UploadFileContent = ({ inputFileRef }) => {
-  return (
-    <Flex
-      justifyContent="center"
-      alignItems="flex-start"
-      w="100%"
-      flexDir="column"
-      paddingX={[3, 0]}
-      cursor="pointer"
-      onClick={() => inputFileRef?.current?.click()}
-    >
-      <Button
-        color="orange.200"
-        padding="50px !important"
-        variant="outline"
-        w="100%"
-        paddingX={[3, 0]}
-      >
-        Attach File
-      </Button>
-      <Text
-        paddingX={[3, 0]}
-        color="orange.200"
-        textAlign="left"
-        mt="sm"
-        fontSize="12px"
-      >
-        Only JPG, PNG, XLS, CVS and PDF formats
-      </Text>
-      <Divider bg="orange" mt="10px" />
-    </Flex>
-  );
-};
+import UploadFileContent from "../components/file-uploads/uploader";
+import {
+  addEncryptedObject,
+  getBase64,
+  segregateFileInformation,
+} from "../helpers/utils";
+import { UploadedFilesList } from "../components/file-uploads/uploaded-file-list";
+import { FileInput } from "../components/file-uploads/file-input";
 
 function Upload() {
   const [fileNames, setFileNames] = useState([]);
@@ -55,17 +19,6 @@ function Upload() {
   const toast = useToast();
   const [config, ipfs] = React.useContext(CeramicConnectionContext);
 
-  async function addEncryptedObject(cleartext, dids) {
-    const { did } = config;
-    const jwe = await did.createDagJWE(cleartext, dids);
-    console.log("jwe-----", jwe);
-    return ipfs.dag.put(jwe, {
-      storeCodec: "dag-jose",
-      hashAlg: "sha2-256",
-      pin: true,
-    });
-  }
-
   async function updateProfile() {
     const { ceramic, did, address } = config;
     const idx = new IDX({ ceramic });
@@ -73,30 +26,19 @@ function Upload() {
     setLoaded(true);
 
     for (let i = 0; i < state.length; i++) {
-      const cid3 = await addEncryptedObject(state[i], [did.id]);
+      const cid3 = await addEncryptedObject(state[i], [did.id], config, ipfs);
       allpromises.push(cid3.toString());
     }
-    console.log("loadede----", cid3);
     const previousData = await idx.get("basicProfile", `${address}@eip155:1`);
     console.log("basicProfile", previousData);
 
-    const segregateFileInformation = (fileData) => {
-      return fileData?.reduce((acc, curr, index) => {
-        acc[curr] = {
-          ...fileNames[index],
-          cid: curr,
-        };
-        return acc;
-      }, {});
-    };
-
     if (previousData?.files) {
-      const files = segregateFileInformation(allpromises);
+      const files = segregateFileInformation(allpromises, fileNames);
       await idx.set("basicProfile", {
         files: { ...previousData?.files, ...files },
       });
     } else {
-      const files = segregateFileInformation(allpromises);
+      const files = segregateFileInformation(allpromises, fileNames);
       await idx.set("basicProfile", {
         files,
       });
@@ -107,15 +49,6 @@ function Upload() {
       description: "successfully uploaded",
       status: "success",
       position: "bottom-right",
-    });
-  }
-
-  function getBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
     });
   }
 
@@ -138,7 +71,6 @@ function Upload() {
       setState(finalOutput);
       console.log("Here, we know that all promises resolved", finalOutput);
     } catch (e) {
-      console.log("If any of the promises rejected, so will Promise.all");
       toast({
         description: "upload error",
         status: "error",
@@ -156,47 +88,7 @@ function Upload() {
         justifyContent="center"
         flexDirection="column"
       >
-        <Flex maxW={["100%", "1000px"]} overflow="scroll">
-          {state?.length > 0 &&
-            state.map((data, index) => {
-              const fileType = data.split(";")[0].split(":")[1].split("/")[0];
-              return (
-                <Box key={index}>
-                  <Box
-                    position="relative"
-                    m="10px"
-                    mb="0px"
-                    width="300px"
-                    key={data?.createdAt}
-                    height="250px"
-                  >
-                    {fileType === "video" && (
-                      <video controls="controls">
-                        <source src={data} type="video/mp4" height="250px" />
-                      </video>
-                    )}
-                    {fileType === "image" && (
-                      <Image objectFit="cover" height="100%" src={data} />
-                    )}
-                    {loaded && (
-                      <Flex
-                        position="absolute"
-                        top="0px"
-                        width="100%"
-                        height="100%"
-                        bg="gray.100"
-                        opacity="0.5"
-                        justifyContent="center"
-                        alignItems="center"
-                      >
-                        <Spinner color="orange.800" />
-                      </Flex>
-                    )}
-                  </Box>
-                </Box>
-              );
-            })}
-        </Flex>
+        <UploadedFilesList filesList={state} isFileLoading={loaded} />
         <Flex
           width="100%"
           height="auto"
@@ -209,6 +101,7 @@ function Upload() {
           maxW="1000px"
         >
           <UploadFileContent inputFileRef={inputFileRef} />
+          <FileInput onChange={onChange} inputFileRef={inputFileRef} />
           <Button
             colorScheme="orange"
             mt="20px"
@@ -218,24 +111,9 @@ function Upload() {
           >
             Set Profile
           </Button>
-          <Input
-            type="file"
-            name="Asset"
-            className="my-4"
-            multiple
-            onChange={onChange}
-            paddingStart={0}
-            mb="10px"
-            border={0}
-            ref={inputFileRef}
-            id="uploadSheetInput"
-            display="none"
-            _focus={{ outline: 0 }}
-          />
         </Flex>
       </Flex>
     </React.Fragment>
   );
 }
-
 export default Upload;

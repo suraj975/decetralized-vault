@@ -20,8 +20,7 @@ function Account() {
     const idx = new IDX({ ceramic });
     try {
       const data = await idx.get("basicProfile", `${address}@eip155:1`);
-      console.log("Data----->", data);
-      // if (!data?.files) return;
+      if (!data?.files) return;
       setLoaded(true);
       let allPromises = [];
       const uploadedCidsList = Object.keys(data?.files);
@@ -30,12 +29,9 @@ function Account() {
         const link = uploadedCidsData[i].cid;
         const cid = new CID(link);
         const cidToV1 = cid.toV1();
-        console.log("link----->", link, cid, cidToV1);
         const newData = await followSecretPath(cidToV1, did);
-        console.log("newData----->", newData);
         allPromises.push({ imageBytes: newData, ...uploadedCidsData[i] });
       }
-      console.log("allPromises----->", allPromises);
       setImage(allPromises);
       setLoaded(false);
     } catch (error) {
@@ -45,7 +41,6 @@ function Account() {
 
   React.useEffect(() => {
     if (!ipfs || !config) return;
-    console.log("renderr----", ipfs, config);
     readProfile();
   }, [config?.address]);
   return (
