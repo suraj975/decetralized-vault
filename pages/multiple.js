@@ -195,8 +195,8 @@ function App() {
       {name && <h3>{name}</h3>}
       {image &&
         image?.length > 0 &&
-        image.map(({ value }) => (
-          <img width="200px" height="200px" src={value} />
+        image.map(({ value, index }) => (
+          <img key={index} width="200px" height="200px" src={value} />
         ))}
       {!image && !name && loaded && <h4>No profile, please create one...</h4>}
     </div>
