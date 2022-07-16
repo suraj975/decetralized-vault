@@ -12,7 +12,6 @@ export const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_KEY;
 
 export const auth =
   "Basic " + Buffer.from(projectId + ":" + projectSecret).toString("base64");
-console.log("auth---", auth);
 export const endpoint = "https://ceramic-clay.3boxlabs.com";
 
 export const useIpfs = () => {
