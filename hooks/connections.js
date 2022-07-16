@@ -7,9 +7,10 @@ import { EthereumAuthProvider, ThreeIdConnect } from "@3id/connect";
 import { DID } from "dids";
 import { create } from "ipfs-http-client";
 
-const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_ID;
-const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_KEY;
-const auth =
+export const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_ID;
+export const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_KEY;
+
+export const auth =
   "Basic " + Buffer.from(projectId + ":" + projectSecret).toString("base64");
 export const endpoint = "https://ceramic-clay.3boxlabs.com";
 
