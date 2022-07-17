@@ -8,6 +8,7 @@ export async function addEncryptedObject(cleartext, dids, config, ipfs) {
   return ipfs.dag.put(jwe, {
     storeCodec: "dag-jose",
     hashAlg: "sha2-256",
+    pin: true,
   });
 }
 
