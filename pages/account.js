@@ -18,7 +18,9 @@ function Account() {
 
   async function followSecretPath(cid, did) {
     const jwe = (await ipfs.dag.get(cid)).value;
-    console.log("did--acciount-----", did);
+    console.log("jwe===account=====", jwe);
+    console.log("cid===account=====", cid);
+    console.log("did===account=====", did);
     const cleartext = await did.decryptDagJWE(jwe);
     return cleartext;
   }
@@ -34,6 +36,7 @@ function Account() {
       let allPromises = [];
       const uploadedCidsList = Object.keys(data?.files);
       const uploadedCidsData = Object.values(data?.files);
+
       for (let i = 0; i < uploadedCidsList.length; i++) {
         const link = uploadedCidsData[i].cid;
         const cid = new CID(link);
@@ -60,14 +63,13 @@ function Account() {
     let imageFiles = [...image];
     imageFiles.splice(index, 1);
     setImage(imageFiles);
-    console.log("imageFiles----", imageFiles);
   };
 
   React.useEffect(() => {
     if (!ipfs || !config) return;
     readProfile();
   }, [config?.address]);
-  console.log("image-----", image);
+
   return (
     <Flex w="100%" justifyContent="center" alignItems="center">
       {image?.length > 0 && (
@@ -78,7 +80,6 @@ function Account() {
               const date = new Date(data?.createdAt).toLocaleDateString(
                 "en-US"
               );
-              console.log("data----", data?.createdAt);
               return (
                 <Box key={data?.cid} mb="10" marginStart="2" color="white">
                   <Flex

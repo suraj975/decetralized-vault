@@ -65,6 +65,7 @@ export const useAccountCeramicConnection = async (config, setConfig) => {
 
     ceramic.setDID(did);
     await ceramic.did.authenticate();
+    console.log("{ ceramic, did, address }", { ceramic, did, address });
     setConfig({ ceramic, did, address });
     console.log("{ ceramic, did, address }", { ceramic, did, address });
   };

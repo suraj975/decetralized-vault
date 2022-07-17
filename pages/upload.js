@@ -19,6 +19,12 @@ function Upload() {
   const toast = useToast();
   const [config, ipfs] = React.useContext(CeramicConnectionContext);
 
+  async function cleanUp() {
+    const { ceramic, did, address } = config;
+    const idx = new IDX({ ceramic });
+    await idx.set("basicProfile", {});
+  }
+
   async function updateProfile() {
     const { ceramic, did, address } = config;
     const idx = new IDX({ ceramic });
@@ -118,6 +124,7 @@ function Upload() {
           >
             Set Profile
           </Button>
+          <Button onClick={cleanUp}>Clean</Button>
         </Flex>
       </Flex>
     </React.Fragment>
