@@ -24,7 +24,7 @@
     "cids": "^1.1.9",
     "dag-jose": "^2.0.1",
     "dids": "^2.4.0",
-    "ethers": "^5.4.4",
+    "ethers": "^5.6.9",
     "framer-motion": "^6.4.3",
     "ipfs-core": "^0.15.4",
     "ipfs-http-client": "^57.0.3",

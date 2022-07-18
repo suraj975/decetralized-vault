@@ -32,7 +32,7 @@ function App() {
   const [state, setState] = useState([]);
   const ipfs = useIpfs();
   async function connect() {
-    const addresses = await window.ethereum.request({
+    const addresses = await window?.ethereum?.request({
       method: "eth_requestAccounts",
     });
     return addresses;

@@ -33,7 +33,7 @@ function App() {
   const [jwcID, setjwcid] = useState();
   const ipfs = useIpfs();
   async function connect() {
-    const addresses = await window.ethereum.request({
+    const addresses = await window?.ethereu?.request({
       method: "eth_requestAccounts",
     });
     return addresses;

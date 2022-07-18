@@ -22,6 +22,8 @@ const Links = [
   { name: "Account", route: "/account" },
 ];
 
+const AuthRoutes = ["Upload", "Account"];
+
 const NavLink = ({ children, link }) => (
   <Link
     style={{ padding: "10px" }}
@@ -38,6 +40,7 @@ const NavLink = ({ children, link }) => (
 export default function NavBar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [config] = React.useContext(CeramicConnectionContext);
+
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -59,11 +62,15 @@ export default function NavBar() {
               display={{ base: "none", md: "flex" }}
             >
               x
-              {Links.map((link) => (
-                <NavLink key={link} link={link.route}>
-                  {link.name}
-                </NavLink>
-              ))}
+              {Links.map((link) => {
+                if (!config?.address && AuthRoutes.includes(link.name))
+                  return <></>;
+                return (
+                  <NavLink key={link} link={link.route}>
+                    {link.name}
+                  </NavLink>
+                );
+              })}
             </HStack>
           </HStack>
           {!config && (
