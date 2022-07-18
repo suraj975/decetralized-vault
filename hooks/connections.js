@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-
+import { Flex, Button, useToast } from "@chakra-ui/react";
 import CeramicClient from "@ceramicnetwork/http-client";
 import ThreeIdResolver from "@ceramicnetwork/3id-did-resolver";
 
 import { EthereumAuthProvider, ThreeIdConnect } from "@3id/connect";
 import { DID } from "dids";
 import { create } from "ipfs-http-client";
+import { ethers } from "ethers";
 
 export const projectId = process.env.NEXT_PUBLIC_INFURA_IPFS_ID;
 export const projectSecret = process.env.NEXT_PUBLIC_INFURA_IPFS_KEY;
@@ -39,12 +40,11 @@ export const useIpfs = () => {
 
 export async function connect() {
   if (typeof window !== "undefined") {
-    const addresses = await window.ethereum.request({
+    const addresses = await window?.ethereum?.request({
       method: "eth_requestAccounts",
     });
 
-    console.log("addressss", addresses);
-    return addresses;
+    return addresses ?? "";
   }
 }
 
@@ -56,17 +56,27 @@ export const useAccountCeramicConnection = async (config, setConfig) => {
   const threeIdConnect = new ThreeIdConnect();
   const getData = async () => {
     const provider = new EthereumAuthProvider(window.ethereum, address);
-    await threeIdConnect.connect(provider);
+    if (!provider?.address) return { ceramic: null, did: null, address: "" };
+    await threeIdConnect?.connect(provider);
     const did = new DID({
-      provider: threeIdConnect.getDidProvider(),
+      provider: threeIdConnect?.getDidProvider(),
       resolver: {
-        ...ThreeIdResolver.getResolver(ceramic),
+        ...ThreeIdResolver?.getResolver(ceramic),
       },
     });
+    if (!ethers.utils.isAddress(address)) {
+      toast({
+        description: "Connect to ethereum",
+        status: "error",
+        position: "bottom-right",
+      });
+      return { ceramic: null, did: null, address: "" };
+    }
 
     ceramic.setDID(did);
     await ceramic.did.authenticate();
     setConfig({ ceramic, did, address });
+    console.log("{ ceramic, did, address }", { ceramic, did, address });
   };
   await getData();
 };

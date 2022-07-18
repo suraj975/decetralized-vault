@@ -17,7 +17,16 @@ function Upload() {
   const [state, setState] = useState([]);
   const inputFileRef = React.useRef(null);
   const toast = useToast();
-  const [config, ipfs] = React.useContext(CeramicConnectionContext);
+  const [config, ipfs, , setDecryptedData] = React.useContext(
+    CeramicConnectionContext
+  );
+
+  async function cleanUp() {
+    const { ceramic, did, address } = config;
+    const idx = new IDX({ ceramic });
+    await idx.set("basicProfile", {});
+    setDecryptedData({});
+  }
 
   async function updateProfile() {
     const { ceramic, did, address } = config;
@@ -54,8 +63,11 @@ function Upload() {
   }
 
   const onChange = async (e) => {
+    const { ceramic, did, address } = config;
+    const idx = new IDX({ ceramic });
     let filesCidsPromises = [];
     let fileName = [];
+    const previousData = await idx.get("basicProfile", `${address}@eip155:1`);
     for (let i = 0; i < e.target.files.length; i++) {
       let data = getBase64(e.target.files[i]);
       fileName.push({
@@ -70,6 +82,7 @@ function Upload() {
       const finalOutput = await Promise.all(filesCidsPromises);
       setFileNames(fileName);
       setState(finalOutput);
+
       console.log("Here, we know that all promises resolved", finalOutput);
     } catch (e) {
       toast({
@@ -112,6 +125,7 @@ function Upload() {
           >
             Set Profile
           </Button>
+          <Button onClick={cleanUp}>Clean</Button>
         </Flex>
       </Flex>
     </React.Fragment>

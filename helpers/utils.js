@@ -3,6 +3,7 @@ import { auth } from "../hooks/connections";
 export async function addEncryptedObject(cleartext, dids, config, ipfs) {
   const { did } = config;
   const jwe = await did.createDagJWE(cleartext, dids);
+  console.log("jwe----", jwe);
   return ipfs.dag.put(jwe, {
     storeCodec: "dag-jose",
     hashAlg: "sha2-256",
