@@ -56,7 +56,8 @@ function Upload() {
 
     setLoaded(false);
     toast({
-      description: "successfully uploaded",
+      description:
+        "File successfully encrypted and uploaded. Visit account to check uploaded files",
       status: "success",
       position: "bottom-right",
     });
@@ -123,7 +124,7 @@ function Upload() {
             isDisabled={!ipfs}
             onClick={updateProfile}
           >
-            Set Profile
+            Upload File
           </Button>
           <Button onClick={cleanUp}>Clean</Button>
         </Flex>

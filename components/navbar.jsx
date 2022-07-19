@@ -8,6 +8,7 @@ import {
   useColorModeValue,
   Stack,
   Text,
+  useToast,
   Avatar,
 } from "@chakra-ui/react";
 import Link from "next/link";
@@ -40,7 +41,16 @@ const NavLink = ({ children, link }) => (
 export default function NavBar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [config] = React.useContext(CeramicConnectionContext);
-
+  const toast = useToast();
+  const handleConnect = () => {
+    if (typeof window.ethereum == "undefined") {
+      toast({
+        description: "MetaMask is not available",
+        status: "error",
+        position: "bottom-right",
+      });
+    }
+  };
   return (
     <>
       <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
@@ -75,7 +85,13 @@ export default function NavBar() {
           </HStack>
           {!config && (
             <Flex alignItems={"center"}>
-              <Button variant={"solid"} colorScheme={"teal"} size={"sm"} mr={4}>
+              <Button
+                onClick={handleConnect}
+                variant={"solid"}
+                colorScheme={"teal"}
+                size={"sm"}
+                mr={4}
+              >
                 Connect
               </Button>
             </Flex>

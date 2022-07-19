@@ -56,11 +56,13 @@ const ImageLoader = () => {
       borderColor="gray.700"
       bg="#202023"
       w="400px"
+      ml="10px"
       height="250px"
       justifyContent="center"
       alignItems="center"
     >
       <Spinner />
+      <Text ml="2">New Files...</Text>
     </Flex>
   );
 };
@@ -100,7 +102,7 @@ function Account() {
   }, [config?.address]);
   return (
     <Flex p="10px" w="100%" justifyContent="center" alignItems="center">
-      {loaded && !Object.keys(decryptedData).length && <Loader />}
+      {loaded && !Object?.keys(decryptedData).length && <Loader />}
       {image?.length > 0 && (
         <Flex w="100%" overflowY="scroll" height="90vh">
           <Flex w="100%" flexWrap="wrap" justifyContent="center">
@@ -162,7 +164,9 @@ function Account() {
                 </Box>
               );
             })}
-            {loaded && Object.keys(decryptedData).length > 0 && <ImageLoader />}
+            {loaded && Object?.keys(decryptedData).length > 0 && (
+              <ImageLoader />
+            )}
           </Flex>
         </Flex>
       )}

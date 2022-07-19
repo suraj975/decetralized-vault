@@ -4,6 +4,7 @@ export const FileInput = ({ onChange, inputFileRef }) => {
   return (
     <Input
       type="file"
+      accept=".jpg,.jpeg,.xls,.csv,.png,.pdf"
       name="Asset"
       className="my-4"
       multiple
