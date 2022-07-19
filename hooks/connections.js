@@ -49,8 +49,10 @@ export async function connect() {
 }
 
 export const useAccountCeramicConnection = async (config, setConfig) => {
+  const toast = useToast();
   if (config) return;
   if (typeof window == "undefined") return;
+
   const [address] = await connect();
   const ceramic = new CeramicClient(endpoint);
   const threeIdConnect = new ThreeIdConnect();
