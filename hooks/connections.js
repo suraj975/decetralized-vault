@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Flex, Button, useToast } from "@chakra-ui/react";
 import CeramicClient from "@ceramicnetwork/http-client";
 import ThreeIdResolver from "@ceramicnetwork/3id-did-resolver";
+import { getResolver as getKeyResolver } from "key-did-resolver";
 
 import { EthereumAuthProvider, ThreeIdConnect } from "@3id/connect";
 import { DID } from "dids";
@@ -64,6 +65,7 @@ export const useAccountCeramicConnection = async (config, setConfig) => {
       provider: threeIdConnect?.getDidProvider(),
       resolver: {
         ...ThreeIdResolver?.getResolver(ceramic),
+        ...getKeyResolver(),
       },
     });
     if (!ethers.utils.isAddress(address)) {
