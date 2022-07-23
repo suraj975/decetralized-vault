@@ -10,20 +10,20 @@ export const LogoIcon = () => {
     >
       <defs id="SvgjsDefs1001">
         <linearGradient id="SvgjsLinearGradient1015">
-          <stop id="SvgjsStop1016" stop-color="#fbb040" offset="0"></stop>
-          <stop id="SvgjsStop1017" stop-color="#f9ed32" offset="1"></stop>
+          <stop id="SvgjsStop1016" stopColor="#fbb040" offset="0"></stop>
+          <stop id="SvgjsStop1017" stopColor="#f9ed32" offset="1"></stop>
         </linearGradient>
         <linearGradient id="SvgjsLinearGradient1018">
-          <stop id="SvgjsStop1019" stop-color="#fbb040" offset="0"></stop>
-          <stop id="SvgjsStop1020" stop-color="#f9ed32" offset="1"></stop>
+          <stop id="SvgjsStop1019" stopColor="#fbb040" offset="0"></stop>
+          <stop id="SvgjsStop1020" stopColor="#f9ed32" offset="1"></stop>
         </linearGradient>
         <linearGradient id="SvgjsLinearGradient1021">
-          <stop id="SvgjsStop1022" stop-color="#fbb040" offset="0"></stop>
-          <stop id="SvgjsStop1023" stop-color="#f9ed32" offset="1"></stop>
+          <stop id="SvgjsStop1022" stopColor="#fbb040" offset="0"></stop>
+          <stop id="SvgjsStop1023" stopColor="#f9ed32" offset="1"></stop>
         </linearGradient>
         <linearGradient id="SvgjsLinearGradient1024">
-          <stop id="SvgjsStop1025" stop-color="#fbb040" offset="0"></stop>
-          <stop id="SvgjsStop1026" stop-color="#f9ed32" offset="1"></stop>
+          <stop id="SvgjsStop1025" stopColor="#fbb040" offset="0"></stop>
+          <stop id="SvgjsStop1026" stopColor="#f9ed32" offset="1"></stop>
         </linearGradient>
       </defs>
       <g
