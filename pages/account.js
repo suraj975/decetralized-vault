@@ -102,7 +102,9 @@ function Account() {
   }, [config?.address]);
   return (
     <Flex p="10px" w="100%" justifyContent="center" alignItems="center">
-      {loaded && !Object?.keys(decryptedData).length && <Loader />}
+      {loaded && decryptedData && !Object?.keys(decryptedData).length && (
+        <Loader />
+      )}
       {image?.length > 0 && (
         <Flex w="100%" overflowY="scroll" height="90vh">
           <Flex w="100%" flexWrap="wrap" justifyContent="center">
