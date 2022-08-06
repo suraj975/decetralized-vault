@@ -21,7 +21,7 @@ export async function readProfile(config, ipfs) {
   const { did, ceramic, address } = config;
   const idx = new IDX({ ceramic });
   try {
-    const data = await idx.get("basicProfile", `${address}@eip155:1`);
+    const data = await idx.get("basicProfile", `${address}@EIP155:3`);
     if (!data?.files) return;
 
     let allPromises = [];
