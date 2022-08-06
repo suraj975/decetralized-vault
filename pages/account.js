@@ -13,6 +13,8 @@ import { unpinCids } from "../helpers/utils";
 
 async function followSecretPath(cid, did, ipfs) {
   const jwe = (await ipfs.dag.get(cid)).value;
+  console.log("jwe-----account", jwe);
+  console.log("did-----account", did);
   const cleartext = await did.decryptDagJWE(jwe);
   return cleartext;
 }
@@ -31,7 +33,9 @@ export async function readProfile(config, ipfs) {
     for (let i = 0; i < uploadedCidsList.length; i++) {
       const link = uploadedCidsData[i].cid;
       const cid = new CID(link);
+      console.log("cid-----account", did);
       const cidToV1 = cid.toV1();
+      console.log("cidToV1-----account", cidToV1);
       const newData = await followSecretPath(cidToV1, did, ipfs);
       allPromises.push({ imageBytes: newData, ...uploadedCidsData[i] });
     }
