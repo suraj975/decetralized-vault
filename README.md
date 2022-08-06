@@ -7,7 +7,7 @@ D-Vault is a personal vault web app designed to hide sensitive data with full en
 
     1. Install Metamask Wallet
 
-    2. Create an account in Infura and choos ipfs netwoek for keys.
+    2. Create an account in Infura and choos ipfs network for keys.
 
     2. Clone the repository (git clone git@github.com:tradeling/web-customer.git)
 
